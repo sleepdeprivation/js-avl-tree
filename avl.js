@@ -58,6 +58,23 @@
 			}
 		}
 
+		this.getNumLeaves = function(){
+
+			var leftLeaves = 0;
+			var rightLeaves = 0;
+
+			if(this.left != null){
+				leftLeaves += this.left.getNumLeaves();
+			}else if(this.right != null){
+				rightLeaves += this.left.getNumLeaves();
+			}else{
+				return 1;	//this is a leaf
+			}
+
+			return leftLeaves + rightLeaves;
+
+		}
+
 
 
 		this.insert = function(x){
@@ -186,15 +203,15 @@
 		}
 
 
-		this.constructGraph = function(g, width, depth){
+		this.constructGraph = function(g, drawX, fullW, depth){
 			if(this.element != null){
-				g.nodes.push( {"id": String(this.element), "label": String(this.element), x: width, y: depth*100, "size":"5.5","color":"rgb(1,179,255)"});
+				g.nodes.push( {"id": String(this.element), "label": String(this.element), x: drawX, y: depth*100, "size":"1","color":"rgb(1,179,255)"});
 				if(this.left != null){
-					this.left.constructGraph(g, width-(width/2), depth+1);
+					this.left.constructGraph(g, drawX-fullW/2, fullW/2 , depth+1);
 					g.edges.push({"id": String(this.element) + "l", "source": String(this.element), "target": String(this.left.element)});
 				}
 				if(this.right != null){
-					this.right.constructGraph(g, width+(width/2), depth+1);
+					this.right.constructGraph(g, drawX+fullW/2, fullW/2, depth+1);
 					g.edges.push({"id": String(this.element) + "r", "source": String(this.element), "target": String(this.right.element)});
 				}
 			}
@@ -206,35 +223,90 @@
 	//console.log(max(4, 6));
 
 	tree = new binaryTree();
-
-	for(var ii = 0; ii < 7; ii++){
-		tree.insert(ii);
+/*
+	for(var ii = 0; ii < 200; ii++){
+		//tree.insert(ii);
 	}
+*/
 
-	var holder = new Object();
 
-	holder.nodes = [];
-	holder.edges = [];
+		var oldFrame = new Object();
 
-	tree.constructGraph(holder, 150, 1);
-	g = {"nodes": holder.nodes, "edges": holder.edges};
+		oldFrame.nodes = [];
+		oldFrame.edges = [];
+
+		tree.constructGraph(oldFrame, 0, 800, 1);
+		g = {"nodes": oldFrame.nodes, "edges": oldFrame.edges};
+
+
+
 	
-	// Instantiate sigma:
-	s = new sigma({
-	  graph: g,
-	  container: 'graph-container',
-	  settings: {
-	    animationsTime: 1000
-	  }
-	});
 
+	var i = 0;
 	setInterval(function() {
-	  sigma.plugins.animate(
-	    s,
-	    {
-	    }
-	  );
-	}, 2000);
+
+		if(i < 10){
+
+			tree.insert(i);
+
+			var curFrame = new Object();
+
+			curFrame.nodes = [];
+			curFrame.edges = [];
+
+			tree.constructGraph(curFrame, 0, 800, 1);
+
+			oldFrame.nodes.forEach(function(val){
+				//console.log(oldFrame.nodes);
+				curFrame.nodes.forEach(function(val2){
+					if(val.id == val2.id){
+						val["newX"] = val2["x"];
+						val["newY"] = val2["y"];
+					}
+				});
+			});
+
+			g = {"nodes": oldFrame.nodes, "edges": oldFrame.edges};
+
+			if(typeof s !== "undefined"){
+				s.kill();
+			}
+
+			// Instantiate sigma:
+			s = new sigma({
+			  graph: g,
+			  container: 'graph-container'
+			});
+
+
+
+
+			sigma.plugins.animate(
+			s,
+				{
+				x: 'newX',
+				y: 'newY'
+				}
+			);
+/*
+			if(typeof s !== "undefined"){
+				s.kill();
+			}
+			// Instantiate sigma:
+			s = new sigma({
+			  graph: g,
+			  container: 'graph-container',
+			});
+*/
+
+			i+= 1;
+
+			oldFrame = curFrame;
+
+
+		}
+
+	}, 500);
 
 
 	//tree.Rrotate();
