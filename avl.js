@@ -145,6 +145,8 @@
 			this.left = temp;
 			this.right = r1;
 
+			temp.height = max(this.getHeight(temp.left), this.getHeight(temp.right)) + 1;
+			this.height - max(this.getHeight(this.right), temp.height) + 1;
 			
 
 		}
@@ -186,7 +188,7 @@
 
 		this.constructGraph = function(g, width, depth){
 			if(this.element != null){
-				g.nodes.push( {"id": String(this.element), "label": this.element, x: width, y: depth*100, "size":"5.5","color":"rgb(1,179,255)"});
+				g.nodes.push( {"id": String(this.element), "label": String(this.element), x: width, y: depth*100, "size":"5.5","color":"rgb(1,179,255)"});
 				if(this.left != null){
 					this.left.constructGraph(g, width-(width/2), depth+1);
 					g.edges.push({"id": String(this.element) + "l", "source": String(this.element), "target": String(this.left.element)});
@@ -205,7 +207,7 @@
 
 	tree = new binaryTree();
 
-	for(var ii = 0; ii < 10; ii++){
+	for(var ii = 0; ii < 7; ii++){
 		tree.insert(ii);
 	}
 
